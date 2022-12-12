@@ -1,4 +1,3 @@
-<import name="native1" src="../Native1/index" ></import>
 <import name="insertAd" src="../InsertAd/index"></import>
 
 <template>
@@ -81,9 +80,6 @@
             </div>
           </div>
         </div>
-        <div class="group-content" show="{{ tabIndex === 1 }}">
-          <native1></native1>
-        </div>
         <div class="group-content" show="{{ tabIndex === 2 }}">
           <insertAd></insertAd>
         </div>
@@ -114,7 +110,6 @@ export default {
     provider: '',
     tabItemList: [
       '首页',
-      '原生',
       '插屏',
       '内容1',
     ],
