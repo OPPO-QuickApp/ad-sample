@@ -1,0 +1,38 @@
+<template>
+  <div class="demo-page">
+    <mediaad
+      class="media-ad"
+      adunitid="{{adunitid}}"
+      @load="onMediaAdLoaded(evt)"
+      @error="onMediaAdError(err)"
+    ></mediaad>
+  </div>
+</template>
+
+<script>
+// 内容广告（小说、视频）
+import ad from '@service.ad'
+
+export default {
+  data: {
+    adunitid: '1000', // 1000（小说）、1001（综合视屏）；1002（游戏视屏）
+  },
+  onMediaAdLoaded(evt) {
+    console.error(`MediaAd onMediaAdLoaded >>> evt:${JSON.stringify(evt)}`)
+  },
+  onMediaAdError(err) {
+    console.error(`MediaAd onMediaAdError >>> err:${JSON.stringify(err)}`)
+  }
+}
+</script>
+
+<style>
+.demo-page {
+    flex: 1;
+    flex-direction: column;
+}
+.media-ad {
+  width: 100%;
+  height: 100%;
+}
+</style>

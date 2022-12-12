@@ -1,0 +1,169 @@
+<!-- ad.preloadAd预加载方式加载 引擎版本号1112+支持 -->
+<template>
+  <div class="ad-wrap">
+    <div class="nativeAdContainer">
+      <ad-custom
+        class="ad-native"
+        adunitid="{{ adunitid }}"
+        onload="adLoad"
+        onerror="adError(err,evt)"
+        onclick="adClick"
+        onclose="adClose"
+        onshow="adShow"
+      >
+      </ad-custom>
+    </div>
+    <div class="page-title-wrap">
+      <text class="page-title">日志</text>
+    </div>
+    <div class="item-container">
+      <text class="item-content" for="(logIndex, log) in logs">
+        <span class="txt">- {{ log }}</span></text
+      >
+    </div>
+    <div class="bottomPlaceHolder"></div>
+  </div>
+</template>
+<script>
+import prompt from '@system.prompt'
+import ad from '@service.ad'
+import device from '@system.device'
+export default {
+  data: {
+    adunitid: 683318,
+    platformVersionCode: '',
+    logs: []
+  },
+  async onInit() {
+    this.platformVersionCode = await this.getDeviceInfo('platformVersionCode')
+
+    if (this.platformVersionCode >= 1112) {
+      this.adPreloaded()
+    }
+    else {
+      prompt.showToast({
+        message: `当前引擎不支持模板广告，请升级最新引擎`
+      })
+      console.log('引擎版本: ', this.platformVersionCode)
+      this.logs.unshift(`引擎版本: ${this.platformVersionCode}`)
+    }
+  },
+  adPreloaded() {
+    ad.preloadAd({
+      adUnitId: this.adunitid,
+      type: 'custom',
+      success: (data) => {
+        console.log(data, '预加载成功')
+        prompt.showToast({
+          message: `预加载成功`
+        })
+        this.logs.unshift(`预加载成功:${data}`)
+      },
+      fail: (err, code) => {
+        console.log(err, code, '预加载失败')
+        prompt.showToast({
+          message: `预加载失败${JSON.stringify(err)}`
+        })
+        this.logs.unshift(`预加载失败：${JSON.stringify(err)}`)
+      }
+    })
+  },
+  adLoad() {
+    console.log('adLoad 模板广告加载成功：')
+    this.logs.unshift(`adLoad 模板广告加载成功`)
+  },
+  adError(err, evt) {
+    if (err) {
+      console.log('adError  模板广告加载出错：', err)
+      this.logs.unshift(`adError 模板广告加载出错：${JSON.stringify(err)}`)
+    } else if (evt) {
+      prompt.showToast({
+        message: '模板广告展示失败:' + evt.errCode + ', errMsg=' + evt.errMsg
+      })
+      console.log('adError 模板广告展示失败：', evt.errCode, evt.errMsg)
+      this.logs.unshift(`adError 模板广告展示失败：code:${evt.errCode},msg:${evt.errMsg}`)
+    }
+  },
+  adShow(evt) {
+    console.log('adShow: 模板广告展示回调事件成功触发')
+    prompt.showToast({
+      message: `模板广告展示回调事件成功触发`
+    })
+    this.logs.unshift(`adShow: 模板广告展示回调事件成功触发`)
+  },
+  adClick(evt) {
+    console.log('adClick: 模板广告点击回调事件成功触发')
+    prompt.showToast({
+      message: `模板广告点击回调事件成功触发`
+    })
+    this.logs.unshift(`adClick: 模板广告点击回调事件成功触发`)
+  },
+  adClose() {
+    console.log('adClose: 模板广告关闭回调事件成功触发 ')
+    prompt.showToast({
+      message: `模板广告关闭回调事件成功触发`
+    })
+    this.logs.unshift(`adClose: 模板广告关闭回调事件成功触发`)
+  },
+  // 获取设备信息
+  getDeviceInfo(key) {
+    return new Promise((resolve, reject) => {
+      device.getInfo({
+        success: function (data) {
+          if (key) {
+            resolve(data[key])
+          } else {
+            resolve(data)
+          }
+        },
+        fail: function (data, code) {
+          reject(`### device.getInfo fail ### ${code}: ${data}`)
+        }
+      })
+    })
+  }
+}
+</script>
+<style lang="less">
+.ad-wrap {
+  flex: 1;
+  flex-direction: column;
+}
+
+.nativeAdContainer {
+  width: 750px;
+  height: 1010px;
+  flex-direction: column;
+}
+
+.ad-native {
+  width: 360%;
+  height: 100%;
+}
+
+.page-title-wrap {
+  justify-content: center;
+}
+.page-title {
+  padding-top: 30px;
+  padding-bottom: 30px;
+  padding-left: 40px;
+  padding-right: 40px;
+  border-color: #bbbbbb;
+  color: #bbbbbb;
+  border-bottom-width: 2px;
+}
+
+.item-container {
+  margin-bottom: 50px;
+  margin-right: 60px;
+  margin-left: 60px;
+  flex-direction: column;
+}
+.item-content {
+  flex-direction: column;
+  background-color: #ffffff;
+  padding: 30px;
+  margin-bottom: 30px;
+}
+</style>

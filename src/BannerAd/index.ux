@@ -1,0 +1,60 @@
+<template>
+  <div class="page-container">
+    <div class="btn-row">
+        <input type="button" value="加载banner广告" onclick="loadBannerAd"/>
+    </div>
+  </div>
+</template>
+  
+<script>
+import prompt from '@system.prompt'
+import device from '@system.device'
+import adx from '@service.ad'
+export default {
+  private: {
+
+  },
+  onInit() {
+    console.log('init')
+  },
+  loadBannerAd() {
+    let bannerAd = adx.createBannerAd({
+      adUnitId: '83817'
+    })
+    console.log(adx.getProvider())
+    if (bannerAd) {
+      bannerAd.onLoad((data) => {
+        console.log(data, 'onload')
+      })
+      bannerAd.onResize((data) => {
+        console.log(data.width + "|" + data.height, 'onResize')      
+      })
+      bannerAd.onError((data) => {
+        console.log(data, 'onError')
+      })
+      bannerAd.show().then(() => {
+        prompt.showToast({
+          message: 'banner 广告show成功'
+        })
+        console.log(`banner 广告show成功，realWidth:
+        ${bannerAd.style.realWidth}, realHeight: ${bannerAd.style.realHeight}`)
+      }, (err) => {
+        prompt.showToast({
+          message: 'banner 广告show失败:' + JSON.stringify(err)
+        })
+      })
+    }
+  }
+}
+</script>
+  
+<style>
+.page-container {
+  width: 100%;
+}
+input {
+  width: 500px;
+  height: 86px;
+  background-color: green;
+}
+</style>

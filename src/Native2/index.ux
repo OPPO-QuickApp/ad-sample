@@ -1,0 +1,215 @@
+<!-- 引擎版本4.6+ -->
+<template>
+  <div>
+    <text class="btn" onclick="reload">重新加载广告</text>
+    <div class="nativeAdContainer" if="{{ showAd }}">
+      <ad
+        adunitid="{{ adunitid }}"
+        class="ad-native"
+        onload="adLoad(evt)"
+        onerror="adError(err,evt)"
+        onadclick="adClick"
+        onadshow="adShow"
+        type="native"
+      >
+        <ad-clickable-area class="ad-content">
+          <div class="left">
+            <image
+              src="{{ adData.imgUrlList && adData.imgUrlList[0] }}"
+            ></image>
+            <div class="ad-mask"><text>广告</text></div>
+          </div>
+          <div class="center">
+            <div class="ad-title">
+              <text>{{ adData.title }}</text>
+            </div>
+            <div class="ad-desc">
+              <text>{{ adData.desc }}</text>
+            </div>
+          </div>
+          <div class="right">
+            <text>{{ adData.clickBtnTxt }}</text>
+          </div>
+        </ad-clickable-area>
+        <div class="ad-close" onclick="onclose"><text>关闭</text></div>
+      </ad>
+    </div>
+  </div>
+</template>
+<script>
+import prompt from '@system.prompt'
+import ad from '@service.ad'
+// JS部分请尽量按照广告示例demo编写
+export default {
+  data: {
+    showAd: true,
+    adunitid: 83747,
+    adData: { // 此处广告的初始值需严格按照文档来
+      imgUrlList: [],
+      title: '',
+      desc: '',
+      clickBtnTxt: ''
+    },
+  },
+  onInit() {
+    this.adPreloaded()
+  },
+  // 广告预加载，5.2以后就不需要提前使用了
+  adPreloaded() {
+    ad.preloadAd({
+      adUnitId: this.adunitid,
+      type: 'native',
+      success: (data) => {
+        console.log(data, '预加载成功')
+        prompt.showToast({
+          message: `预加载成功${JSON.stringify(data)}`
+        })
+      },
+      fail: function (err, code) {
+        console.log(err, code, '预加载失败')
+        prompt.showToast({
+          message: `预加载失败${JSON.stringify(err)}`
+        })
+      }
+    })
+  },
+  adLoad(evt) {
+    if (evt && evt.adData) {
+      const adData = JSON.parse(evt.adData)
+      this.adData = adData
+      prompt.showToast({
+        message: '信息流广告展示成功'
+      })
+      console.log('adLoad', adData, '信息流广告加载成功');
+    }
+  },
+  adError(err, evt) {
+    if (err) {
+      console.log('adError 信息流广告加载出错：', err)
+    } else if (evt) {
+      prompt.showToast({
+        message: '信息流广告展示失败:' + evt.errCode + ', errMsg=' + evt.errMsg
+      })
+      console.log('adError 信息流广告展示失败：', evt.errCode, evt.errMsg)
+    }
+  },
+  adShow(evt) {
+    console.log('adShow: ', evt)
+
+    prompt.showToast({
+      message: `广告展示回调事件成功触发`
+    })
+  },
+  adClick(evt) {
+    console.log('adClick: ', evt)
+
+    prompt.showToast({
+      message: `广告点击回调事件成功触发`
+    })
+  },
+  reload() {
+    // 可通过 if 先销毁原广告组件，再重新创建广告组件，达到重新加载的效果
+    this.showAd = false
+    setTimeout(() => {
+      this.adData = {
+        imgUrlList: [],
+        title: '',
+        desc: '',
+        clickBtnTxt: ''
+      }
+      this.showAd = true
+    }, 500)
+  },
+  onclose() {
+    this.showAd = false
+  }
+}
+</script>
+<style lang="less">
+.btn {
+  height: 86px;
+  border: 1px solid #333;
+  padding: 20px;
+}
+
+.nativeAdContainer {
+  position: absolute;
+  bottom: 0;
+  width: 750px;
+  height: 150px;
+}
+
+.ad-native {
+  background-color: lightgray;
+  width: 100%;
+  height: 100%;
+  position: relative;
+
+  .ad-content {
+    width: 100%;
+    height: 100%;
+
+    .left {
+      flex: 30;
+
+      .ad-mask {
+        background-color: gray;
+        opacity: 0.5;
+        position: absolute;
+        top: 0;
+        left: 0;
+        text {
+          font-size: 20px;
+          padding: 2px;
+          color: #ffffff;
+        }
+      }
+    }
+    .center {
+      flex: 50;
+      flex-direction: column;
+      padding: 0 3px;
+      .ad-title {
+        text {
+          color: red;
+          padding: 5px 0;
+          font-size: 30px;
+          font-weight: bold;
+        }
+      }
+      .ad-desc {
+        text {
+          lines: 2;
+          text-overflow: ellipsis;
+          font-size: 25px;
+          font-weight: bold;
+        }
+      }
+    }
+    .right {
+      flex: 20;
+      background-color: orange;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text {
+        color: white;
+        font-weight: bold;
+      }
+    }
+  }
+  .ad-close {
+    width: 50px;
+    height: 30px;
+    background-color: gray;
+    opacity: 0.5;
+    position: absolute;
+    margin-left: 700px;
+    text {
+      font-size: 20px;
+      padding: 5px;
+      color: #ffffff;
+    }
+  }
+}
+</style>

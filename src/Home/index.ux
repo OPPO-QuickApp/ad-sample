@@ -1,0 +1,283 @@
+<import name="native1" src="../Native1/index" ></import>
+<import name="insertAd" src="../InsertAd/index"></import>
+
+<template>
+  <!-- template里只能有一个根节点 -->
+  <div class="demo-page">
+    <tabs index="{{ tabIndex }}" @change="onTabChanged">
+      <tab-content class="group-container" scrollable="false">
+        <div class="group-content" show="{{ tabIndex === 0 }}">
+          <div class="center">
+            <div class="divider"></div>
+            <text class="txt">服务提供商:{{ provider }}</text>
+            <input
+              class="btn"
+              type="button"
+              value="广告Sample"
+              onclick="routeSample"
+            />
+            <div class="group1">
+              <text>Banner广告 & 信息流2.0</text>
+              <div class="btn_layout">
+                <input
+                  class="btn1"
+                  type="button"
+                  value="Banner广告"
+                  onclick="routeDetail"
+                />
+                <input
+                  class="btn1"
+                  type="button"
+                  value="原生信息流广告2.0"
+                  onclick="routeNative2"
+                />
+                <input
+                  class="btn1"
+                  type="button"
+                  value="原生2.0(支持多条)"
+                  onclick="routeNative3"
+                />
+              </div>
+            </div>
+            <div class="group1">
+              <text>内容广告（父容器）</text>
+              <div class="btn_layout">
+                <input
+                  class="btn1"
+                  type="button"
+                  value="div0"
+                  onclick="routeMediaAdDiv"
+                />
+                <input
+                  class="btn1"
+                  type="button"
+                  value="stack1"
+                  onclick="routeMediaAdStack"
+                />
+                <input
+                  class="btn1"
+                  type="button"
+                  value="swiper2"
+                  onclick="routeMediaAdSwiper"
+                />
+              </div>
+            </div>
+            <div class="group1">
+              <text>模板广告</text>
+              <div class="btn_layout">
+                <input
+                  class="btn1"
+                  type="button"
+                  value="预加载"
+                  onclick="customAdPreloaded"
+                />
+                <input
+                  class="btn1"
+                  type="button"
+                  value="Load加载"
+                  onclick="customAdLoad"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="group-content" show="{{ tabIndex === 1 }}">
+          <native1></native1>
+        </div>
+        <div class="group-content" show="{{ tabIndex === 2 }}">
+          <insertAd></insertAd>
+        </div>
+        <mediaad
+          show="{{ tabIndex === 3 }}"
+          class="media-ad"
+          adunitid="{{adunitid}}"
+          @load="onMediaAdLoaded(evt)"
+          @error="onMediaAdError(err)"
+        ></mediaad>
+      </tab-content>
+
+      <tab-bar class="footer-container">
+        <text class="tab-text" for="{{tabItemList}}">{{ $item }}</text>
+      </tab-bar>
+    </tabs>
+  </div>
+</template>
+
+<script>
+import router from '@system.router'
+import adx from '@service.ad'
+
+export default {
+  // 页面级组件的数据模型，影响传入数据的覆盖机制：private内定义的属性不允许被覆盖
+  private: {
+    tabIndex: 0,
+    provider: '',
+    tabItemList: [
+      '首页',
+      '原生',
+      '插屏',
+      '内容1',
+    ],
+    adunitid: '1001', // 1000（小说）、1001（综合视屏）；1002（游戏视屏）
+  },
+  onInit() {
+    this.provider = adx.getProvider()
+    console.log(`Home onInit() this.provider=${this.provider}`)
+  },
+  onShow() {
+    console.log(`Home onShow()`)
+  },
+  onTabChanged(e) {
+    this.tabIndex = e.index
+  },
+  routeSample() {
+    router.push({
+      uri: '/AdSample'
+    })
+  },
+  routeDetail() {
+    // 跳转到应用内的某个页面，router用法详见：文档->接口->页面路由
+    router.push({
+      uri: '/BannerAd'
+    })
+  },
+  routeNative2() {
+    router.push({
+      uri: '/Native2'
+    })
+  },
+  routeNative3() {
+    router.push({
+      uri: '/Native3'
+    })
+  },
+  routeMediaAdDiv() {
+    router.push({
+      uri: '/MediaAdDiv'
+    })
+  },
+  routeMediaAdStack() {
+    router.push({
+      uri: '/MediaAdStack'
+    })
+  },
+  routeMediaAdSwiper() {
+    router.push({
+      uri: '/MediaAdSwiper'
+    })
+  },
+  customAdPreloaded() {
+    router.push({
+      uri: '/TemplateAd1'
+    })
+  },
+  customAdLoad() {
+    router.push({
+      uri: '/TemplateAd2'
+    })
+  },
+  onMediaAdLoaded(evt) {
+    console.error(`Home onMediaAdLoaded >>> evt:${JSON.stringify(evt)}`)
+  },
+  onMediaAdError(err) {
+    console.error(`Home onMediaAdError >>> err:${JSON.stringify(err)}`)
+  }
+}
+</script>
+
+<style>
+.demo-page {
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.footer-container {
+  height: 120px;
+  border-top-width: 1px;
+  border-color: #bbbbbb;
+  background-color: #ffffff;
+}
+
+.group-container {
+  flex: 1;
+  flex-direction: column;
+}
+
+.group-container {
+  flex: 1;
+  flex-direction: column;
+}
+.group-content {
+  flex-direction: column;
+  flex: 1;
+}
+
+.tab-text {
+  text-align: center;
+}
+.tab-text:active {
+  color: #0faeff;
+}
+
+.title {
+  font-size: 40px;
+  text-align: center;
+}
+
+.btn {
+  width: 80%;
+  height: 86px;
+  margin-top: 75px;
+  border-radius: 43px;
+  background-color: #09ba07;
+  font-size: 30px;
+  color: #ffffff;
+}
+
+.btn_layout {
+  flex: 1;
+  flex-direction: row;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
+
+.group1 {
+  flex: 1;
+  flex-direction: column;
+  height: 420px;
+  border-color: #bbbbbb;
+  border-width: 1px;
+  padding: 15px;
+  width: 80%;
+  margin: 30px 0;
+}
+
+.btn1 {
+  height: 86px;
+  margin-top: 75px;
+  border-radius: 43px;
+  background-color: #09ba07;
+  font-size: 30px;
+  color: #ffffff;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.txt {
+  color: #3c3c3c;
+}
+.divider {
+  height: 36px;
+}
+
+.center {
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.media-ad {
+  width: 100%;
+  height: 100%;
+}
+</style>

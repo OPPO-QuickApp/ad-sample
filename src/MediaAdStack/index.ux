@@ -1,0 +1,55 @@
+<template>
+  <stack class="stack">
+    <mediaad
+      class="media-ad"
+      adunitid="{{adunitid}}"
+      @load="onMediaAdLoaded(evt)"
+      @error="onMediaAdError(err)"
+    ></mediaad>
+    <div class="title-layout">
+      <text class="title">stack容器排列方式为层叠，每个子组件按照先后顺序依次堆叠，覆盖前面的组件</text>
+    </div>
+  </stack>
+</template>
+
+<script>
+// 内容广告（小说、视频）
+import ad from '@service.ad'
+
+export default {
+  data: {
+    adunitid: '1001', // 1000（小说）、1001（综合视屏）；1002（游戏视屏）
+  },
+  onMediaAdLoaded(evt) {
+    console.error(`MediaAd onMediaAdLoaded >>> evt:${JSON.stringify(evt)}`)
+  },
+  onMediaAdError(err) {
+    console.error(`MediaAd onMediaAdError >>> err:${JSON.stringify(err)}`)
+  }
+}
+</script>
+
+<style>
+.demo-page {
+    flex: 1;
+    flex-direction: column;
+}
+.stack {
+  height: 100%;
+  width: 100%;
+  align-items: flex-end;
+}
+.media-ad {
+  width: 100%;
+  height: 100%;
+}
+.title-layout {
+  background-color: lightgray;
+  padding: 8px;
+  opacity: 0.8;
+}
+.title {
+  color: #00ff00;
+  lines: 2;
+}
+</style>

@@ -1,0 +1,300 @@
+<!-- 多条广告 引擎版本号1112+支持 -->
+<template>
+  <div class="ad-wrap">
+    <text class="btn" onclick="btnClick">加载广告</text>
+    <block for="{{ adItem in adData}}">
+      <div class="nativeAdContainer" if="{{ adItem.showAd }}">
+        <ad
+          adid="{{ adItem.adId }}"
+          class="ad-native"
+          onload="adLoad()"
+          onerror="adError(err,evt)"
+          onadclick="adClick"
+          onadshow="adShow"
+          type="native"
+        >
+          <ad-clickable-area class="ad-content">
+            <div class="left">
+              <image
+                src="{{ adItem.imgUrlList && adItem.imgUrlList[0] }}"
+              ></image>
+              <div class="ad-mask"><text>广告</text></div>
+            </div>
+            <div class="center">
+              <div class="ad-title">
+                <text>{{ adItem.title }}</text>
+              </div>
+              <div class="ad-desc">
+                <text>{{ adItem.desc }}</text>
+              </div>
+            </div>
+            <div class="right">
+              <text>{{ adItem.clickBtnTxt }}</text>
+            </div>
+          </ad-clickable-area>
+
+          <div class="ad-close" onclick="handleClose(adItem.adId)">
+            <text>关闭</text>
+          </div>
+        </ad>
+      </div>
+    </block>
+    <div class="page-title-wrap">
+      <text class="page-title">日志</text>
+    </div>
+    <div class="item-container">
+      <text class="item-content" for="(logIndex, log) in logs">
+        <span class="txt">- {{ log }}</span></text
+      >
+    </div>
+    <div class="bottomPlaceHolder"></div>
+  </div>
+</template>
+<script>
+import prompt from '@system.prompt'
+import ad from '@service.ad'
+import device from '@system.device'
+// JS部分请尽量按照广告示例demo编写
+export default {
+  data: {
+    adUnitid: 83747,
+    adData: [],
+    adCount: 2,
+    preloadData: [],
+    platformVersionCode: '',
+    logs: []
+
+  },
+  async onInit() {
+    this.platformVersionCode = await this.getDeviceInfo('platformVersionCode')
+
+    if (this.platformVersionCode >= 1112) {
+      this.adPreloaded()
+    }
+    else {
+      prompt.showToast({
+        message: `当前引擎不支持渲染多条广告，请升级最新引擎`
+      })
+      console.log('引擎版本: ', this.platformVersionCode)
+      this.logs.unshift(`引擎版本: ${this.platformVersionCode}`)
+      this.logs.unshift(`当前引擎不支持渲染多条广告，请升级最新引擎`)
+    }
+  },
+  adPreloaded() {
+    ad.preloadAd({
+      adUnitId: this.adUnitid,//原生信息流2.0广告位标识
+      adCount: this.adCount,//预期返回的数据条数：一次成功返回有1-3个数据，参照对应的adCount数
+      type: 'native',//所属广告位类型
+      success: (data) => {
+        console.log(data, '预加载成功')
+        this.logs.unshift(`预加载成功: ${JSON.stringify(data)}`)
+        prompt.showToast({
+          message: `预加载成功`
+        })
+        //存储预加载数据
+        this.preloadData = data.adList
+      },
+      fail: (err, code) => {
+        console.log(err, code, '预加载失败')
+        this.logs.unshift(`预加载失败:${JSON.stringify(err)}`)
+        prompt.showToast({
+          message: `预加载失败${JSON.stringify(err)}`
+        })
+      }
+    })
+  },
+  btnClick() {
+    console.log('点击加载广告按钮')
+    this.logs.unshift('点击加载广告按钮')
+    if (this.preloadData) {
+      //置空，便于重新加载广告
+      this.adData = []
+
+      //深拷贝，否则会影响对象改变后，无法触发UI渲染
+      let result = JSON.parse(JSON.stringify(this.preloadData))
+      //处理单条广告，是否显示
+      this.adData = result.map((ele) => {
+        ele.showAd = true
+        return ele
+      })
+      this.logs.unshift(`广告数据：${JSON.stringify(this.adData)}`)
+    }
+  },
+  adLoad() {
+    prompt.showToast({
+      message: 'adLoad'
+    })
+    this.logs.unshift(`adLoad 信息流广告加载成功`)
+  },
+  adError(err, evt) {
+    if (err) {
+      console.log('adError 信息流广告加载出错：', err)
+      this.logs.unshift(`adError 信息流广告加载出错：${err}`)
+    } else if (evt) {
+      prompt.showToast({
+        message: '信息流广告展示失败:' + evt.errCode + ', errMsg=' + evt.errMsg
+      })
+      console.log('adError 信息流广告展示失败：', evt.errCode, evt.errMsg)
+      this.logs.unshift(`adError 信息流广告展示失败：Code:${evt.errCode},Msg:${evt.errMsg}`)
+    }
+  },
+  adShow(evt) {
+    console.log('adShow: ', evt)
+    prompt.showToast({
+      message: `广告展示回调事件成功触发`
+    })
+    this.logs.unshift(`广告展示回调事件成功触发`)
+  },
+  adClick(evt) {
+    console.log('adClick: ', evt)
+    prompt.showToast({
+      message: `广告点击回调事件成功触发`
+    })
+    this.logs.unshift(`广告点击回调事件成功触发`)
+  },
+  handleClose(adId) {
+    this.adData.forEach(ele => {
+      if (ele.adId === adId) {
+        ele.showAd = false
+        this.logs.unshift(`关闭广告。adid:${adId}`)
+      }
+    })
+  },
+  // 获取设备信息
+  getDeviceInfo(key) {
+    return new Promise((resolve, reject) => {
+      device.getInfo({
+        success: function (data) {
+          if (key) {
+            resolve(data[key])
+          } else {
+            resolve(data)
+          }
+        },
+        fail: function (data, code) {
+          reject(`### device.getInfo fail ### ${code}: ${data}`)
+        }
+      })
+    })
+  }
+}
+</script>
+<style lang="less">
+.ad-wrap {
+  flex: 1;
+  flex-direction: column;
+}
+
+.btn {
+  height: 86px;
+  border: 1px solid #333;
+  padding: 20px;
+}
+
+.nativeAdContainer {
+  width: 750px;
+  height: 150px;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.ad-native {
+  background-color: lightgray;
+  width: 100%;
+  height: 100%;
+  position: relative;
+
+  .ad-content {
+    width: 100%;
+    height: 100%;
+
+    .left {
+      flex: 30;
+
+      .ad-mask {
+        background-color: gray;
+        opacity: 0.5;
+        position: absolute;
+        top: 0;
+        left: 0;
+        text {
+          font-size: 20px;
+          padding: 2px;
+          color: #ffffff;
+        }
+      }
+    }
+    .center {
+      flex: 50;
+      flex-direction: column;
+      padding: 0 3px;
+      .ad-title {
+        text {
+          color: red;
+          padding: 5px 0;
+          font-size: 30px;
+          font-weight: bold;
+        }
+      }
+      .ad-desc {
+        text {
+          lines: 2;
+          text-overflow: ellipsis;
+          font-size: 25px;
+          font-weight: bold;
+        }
+      }
+    }
+    .right {
+      flex: 20;
+      background-color: orange;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text {
+        color: white;
+        font-weight: bold;
+      }
+    }
+  }
+  .ad-close {
+    width: 50px;
+    height: 30px;
+    background-color: gray;
+    opacity: 0.5;
+    position: absolute;
+    margin-left: 700px;
+    text {
+      font-size: 20px;
+      padding: 5px;
+      color: #ffffff;
+    }
+  }
+}
+
+.page-title-wrap {
+  justify-content: center;
+}
+.page-title {
+  padding-top: 30px;
+  padding-bottom: 30px;
+  padding-left: 40px;
+  padding-right: 40px;
+  border-color: #bbbbbb;
+  color: #bbbbbb;
+  border-bottom-width: 2px;
+}
+
+.item-container {
+  margin-bottom: 50px;
+  margin-right: 60px;
+  margin-left: 60px;
+  flex-direction: column;
+}
+.item-content {
+  flex-direction: column;
+  background-color: #ffffff;
+  padding: 30px;
+  margin-bottom: 30px;
+}
+</style>

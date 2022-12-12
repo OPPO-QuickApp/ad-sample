@@ -1,0 +1,157 @@
+<template>
+  <!-- 原生 -->
+  <div class="page-container">
+    <input type="button" class="btn" value="加载原生广告" onclick="loadNativeAd"/>
+    <div class="nativeContent" if="{{nativeIsShow}}">
+      <text>广告展示</text>
+      <list class="nativeList">
+        <list-item type="native" for="{{nativeDataList}}" class="native-item">
+          <stack class="nativeBox" onclick="reportNativeAdClick($item.adId)" onappear="reportNativeAdShow($item.adId)">
+            <div class="nativeMsgBox">
+              <image src="{{$item.icon}}" class="nativeIcon"></image>
+              <div class="nativeText">
+                <text class="nativeTitle">{{$item.title}}</text>
+                <text class="nativeDesc">{{$item.desc}}</text>
+              </div>
+            </div>
+            <div class="logoBox">
+              <text class="nativeClose" onclick="nativeHide($idx)">关闭</text>
+              <image src="{{$item.logoUrl}}" class="nativeLogo"></image>
+            </div>
+          </stack>
+        </list-item>
+      </list>
+    </div>
+  </div>
+</template>
+  
+<script>
+import ad from '@service.ad'
+export default {
+  data: {
+    nativeDataList: [],
+    nativeIsShow: false,
+  },
+  loadNativeAd() {
+    let nativeAd = ad.createNativeAd({
+      adUnitId: '83747'
+    })
+    this.nativeAd = nativeAd
+
+    nativeAd.onLoad(this.nativeOnLoad.bind(this))
+    nativeAd.onError(this.nativeOnError.bind(this))
+
+    nativeAd.load()
+  },
+  nativeOnError(err) {
+    console.log(`===== 原生广告错误: ${err.errMsg}, ${err.errCode}`)
+    this.nativeIsShow = false
+  },
+  nativeOnLoad(result) {
+    console.log('===== 原生广告结果', JSON.stringify(result))
+    this.nativeAdResult = result
+    this.nativeDataList = result.adList
+    this.nativeIsShow = true
+  },
+  reportNativeAdClick(adId) {
+    if (this.nativeAdResult && this.nativeAdResult.adList && this.nativeAdResult.adList.length > 0) {
+      this.nativeAd.reportAdClick({ adId: adId })
+    }
+  },
+  nativeHide(idx, e) {
+    if (e.stopPropagation) {
+      e.stopPropagation()
+    }
+    this.nativeDataList.splice(idx, 1)
+  },
+}
+</script>
+  
+<style lang="less">
+@import "../Common/common.css";
+
+.page-container {
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+input {
+  width: 500px;
+  height: 86px;
+  background-color: green;
+}
+
+.nativeContent {
+  flex-direction: column;
+  align-items: center;
+  height: 300px;
+  margin-top: 30px;
+}
+.nativeList {
+  flex: 1;
+}
+.native-item {
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+}
+.nativeBox {
+  width: 100%;
+  height: 120px;
+  background-color: skyblue;
+  margin-bottom: 20px;
+}
+.nativeMsgBox {
+  width: 100%;
+  height: 100%;
+  align-items: center;
+}
+.nativeIcon {
+  width: 80px;
+  height: 80px;
+  margin-right: 20px;
+  margin-left: 30px;
+  border-radius: 180px;
+}
+
+.nativeText {
+  width: 300px;
+  flex-direction: column;
+}
+.nativeTitle {
+  font-weight: bold;
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+.nativeDesc {
+  font-size: 24px;
+}
+.logoBox {
+  width: 100%;
+  justify-content: space-between;
+}
+.nativeClose {
+  width: 60px;
+  height: 24px;
+  text-align: center;
+  line-height: 12px;
+  font-size: 12px;
+  background-color: #ccc;
+  color: #fff;
+  opacity: 0.7;
+}
+.nativeLogo {
+  width: 60px;
+  height: 20px;
+  margin-right: 0;
+}
+.btn {
+  width: 50%;
+  height: 86px;
+  background-color: #09ba07;
+  font-size: 30px;
+  color: #ffffff;
+}
+</style>

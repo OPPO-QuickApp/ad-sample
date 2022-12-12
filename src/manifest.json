@@ -1,0 +1,111 @@
+{
+  "package": "com.oppo.ad_test2",
+  "name": "ad-sample",
+  "versionName": "1.0.2",
+  "versionCode": 3,
+  "minPlatformVersion": 1070,
+  "icon": "/Common/logo.png",
+  "deviceTypeList": [
+    "phone"
+  ],
+  "features": [
+    {
+      "name": "system.prompt"
+    },
+    {
+      "name": "system.router"
+    },
+    {
+      "name": "system.shortcut"
+    },
+    {
+      "name": "system.device"
+    },
+    {
+      "name": "service.ad"
+    }
+  ],
+  "permissions": [
+    {
+      "origin": "*"
+    }
+  ],
+  "config": {
+    "logLevel": "debug"
+  },
+  "router": {
+    "entry": "Home",
+    "pages": {
+      "Home": {
+        "component": "index"
+      },
+      "AdSample": {
+        "component": "index"
+      },
+      "BannerAd": {
+        "component": "index"
+      },
+      "Native2": {
+        "component": "index"
+      },
+      "Native3": {
+        "component": "index"
+      }, 
+      "TemplateAd1": {
+        "component": "index"
+      },
+      "TemplateAd2": {
+        "component": "index"
+      },
+      "MediaAdDiv": {
+        "component": "index"
+      },
+      "MediaAdStack": {
+        "component": "index"
+      },
+      "MediaAdSwiper": {
+        "component": "index"
+      }
+    },
+    "widgets": {
+      "CardDemo": {
+        "name": "CardDemo",
+        "description": "快应用卡片展示",
+        "component": "index",
+        "path": "/CardDemo",
+        "features": []
+      }
+    }
+  },
+  "display": {
+    "titleBarBackgroundColor": "#f2f2f2",
+    "titleBarTextColor": "#414141",
+    "menu": false,
+    "menuBarData": {
+      "menuBar": true
+    },
+    "pages": {
+      "Home": {
+        "titleBarText": "广告示例"
+      },
+      "BannerAd": {
+        "titleBarText": "BannerAd"
+      },
+      "Native2": {
+        "titleBarText": "原生信息流广告2.0"
+      },
+      "Native3": {
+        "titleBarText": "原生信息流广告2.0(新)"
+      },
+      "CompatibleNative": {
+        "titleBarText": "原生信息流广告兼容返回多条"
+      },
+      "TemplateAd1": {
+        "titleBarText": "原生模板广告(预加载)"
+      },
+      "TemplateAd2": {
+        "titleBarText": "原生模板广告(Load加载)"
+      }
+    }
+  }
+}

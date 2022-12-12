@@ -1,0 +1,52 @@
+<template>
+  <div class="demo-page">
+    <input class="btn" type="button" @click="clickAd" value="加载插屏广告" />
+  </div>
+</template>
+
+<script>
+// 插屏广告
+import ad from '@service.ad'
+
+export default {
+  data: {
+  },
+  clickAd() {
+    const interstitialAd = ad.createInterstitialAd({ 
+      adUnitId: '83739'
+    })
+
+    interstitialAd.onLoad(()=> {
+      console.log("插屏广告加载成功")
+      
+      interstitialAd.show().then((data) => {
+        console.log('插屏广告show成功', JSON.stringify(data))
+      }, (err) => {
+        console.log('插屏广告show失败', JSON.stringify(err))
+      })
+    })
+
+    interstitialAd.onClose(() => {
+      console.log("插屏广告关闭")
+      interstitialAd.destroy()
+    })
+
+  }
+}
+</script>
+
+<style>
+.demo-page {
+    flex: 1;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.btn {
+  width: 50%;
+  height: 86px;
+  background-color: #09ba07;
+  font-size: 30px;
+  color: #ffffff;
+}
+</style>
