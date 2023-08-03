@@ -8,8 +8,7 @@
   "deviceTypeList": [
     "phone"
   ],
-  "features": [
-    {
+  "features": [{
       "name": "system.prompt"
     },
     {
@@ -25,11 +24,9 @@
       "name": "service.ad"
     }
   ],
-  "permissions": [
-    {
-      "origin": "*"
-    }
-  ],
+  "permissions": [{
+    "origin": "*"
+  }],
   "config": {
     "logLevel": "debug"
   },
@@ -50,11 +47,14 @@
       },
       "Native3": {
         "component": "index"
-      }, 
+      },
       "TemplateAd1": {
         "component": "index"
       },
       "TemplateAd2": {
+        "component": "index"
+      },
+      "NativeVideoAd": {
         "component": "index"
       },
       "MediaAdDiv": {
@@ -65,16 +65,35 @@
       },
       "MediaAdSwiper": {
         "component": "index"
+      },
+      "NativeScene":{
+        "component": "index"
+      },
+      "NativeScene/Scene3":{
+        "component": "index"
+      },
+      "NativeScene/Scene7":{
+        "component": "index"
+      },
+      "NativeScene/Scene8":{
+        "component": "index"
+      },
+      "NativeScene/Scene8-swiper":{
+        "component": "index"
+      },
+      "NativeScene/Scene13":{
+        "component": "index"
+      },
+      "NativeScene/Scene15":{
+        "component": "index"
+      },
+      "NativeScene/Scene16":{
+        "component": "index"
+      },
+      "NativeEcpm":{
+        "component": "index"
       }
-    },
-    "widgets": {
-      "CardDemo": {
-        "name": "CardDemo",
-        "description": "快应用卡片展示",
-        "component": "index",
-        "path": "/CardDemo",
-        "features": []
-      }
+      
     }
   },
   "display": {
@@ -105,6 +124,12 @@
       },
       "TemplateAd2": {
         "titleBarText": "原生模板广告(Load加载)"
+      },
+      "NativeVideoAd": {
+        "titleBarText": "原生自渲染2.0视频"
+      },
+      "NativeScene": {
+        "titleBarText": "原生自渲染2.0场景样式推荐"
       }
     }
   }

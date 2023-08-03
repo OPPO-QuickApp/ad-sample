@@ -1,17 +1,51 @@
 <!-- ad.preloadAd预加载方式加载 引擎版本号1112+支持 -->
 <template>
   <div class="ad-wrap">
-    <div class="nativeAdContainer">
-      <ad-custom
-        class="ad-native"
-        adunitid="{{ adunitid }}"
-        onload="adLoad"
-        onerror="adError(err,evt)"
-        onclick="adClick"
-        onclose="adClose"
-        onshow="adShow"
-      >
-      </ad-custom>
+    <block for="{{ adItem in adData}}">
+      <div class="nativeAdContainer" if="{{ adItem.showAd }}">
+        <ad-custom
+          id="ad-custom"
+          class="ad-native"
+          adid="{{ adItem.adId }}"
+          onerror="adError(err,evt)"
+          onload="adLoad"
+          onclick="adClick"
+          onclose="adClose(adItem.adId)"
+          onshow="adShow"
+        >
+        </ad-custom>
+      </div>
+    </block>
+
+    <div class="item-container">
+      <div class="item-content">
+        <input type="button" class="btn1" onclick="getECPM" value="获取竞价" />
+        <input
+          type="button"
+          class="btn1"
+          onclick="btnNotifyRankWin"
+          value="通知竞价成功"
+        />
+        <input
+          type="button"
+          class="btn1"
+          onclick="btnNotifyRankLoss"
+          value="通知竞价失败"
+        />
+        <input
+          type="button"
+          class="btn1"
+          onclick="btnSetBidECPM"
+          value="设置实际结算价"
+        />
+
+        <input
+          type="button"
+          class="btn1"
+          onclick="btnLoadAd"
+          value="加载广告"
+        />
+      </div>
     </div>
     <div class="page-title-wrap">
       <text class="page-title">日志</text>
@@ -32,11 +66,14 @@ export default {
   data: {
     adunitid: 683318,
     platformVersionCode: '',
+    preloadData: [],
+    adData: [],
+    showAd: false,
     logs: []
   },
   async onInit() {
     this.platformVersionCode = await this.getDeviceInfo('platformVersionCode')
-
+    console.log(this.platformVersionCode);
     if (this.platformVersionCode >= 1112) {
       this.adPreloaded()
     }
@@ -51,13 +88,18 @@ export default {
   adPreloaded() {
     ad.preloadAd({
       adUnitId: this.adunitid,
+      ecpm: true,
       type: 'custom',
+      adCount: 3,
       success: (data) => {
-        console.log(data, '预加载成功')
+        if (this.platformVersionCode >= 1118) {
+          //存储预加载数据
+          this.preloadData = data.adList
+        }
         prompt.showToast({
           message: `预加载成功`
         })
-        this.logs.unshift(`预加载成功:${data}`)
+        this.logs.unshift(`预加载成功:${JSON.stringify(data)}`)
       },
       fail: (err, code) => {
         console.log(err, code, '预加载失败')
@@ -68,9 +110,61 @@ export default {
       }
     })
   },
+  btnNotifyRankWin() {
+    this.logs.unshift(`点击通知竞价成功接口`)
+    if (this.preloadData.length > 0) {
+      let adid = this.preloadData[0].adId
+      this.logs.unshift(`adid:${adid}`)
+      const data = ad.notifyRankWin({
+        adid: adid,
+        lossPrice: 1000
+      })
+      this.logs.unshift(`通知竞价成功接口正常返回:${JSON.stringify(data)}`)
+    }
+  },
+  btnNotifyRankLoss() {
+    this.logs.unshift(`点击通知竞价失败接口`)
+    if (this.preloadData.length > 0) {
+      let adid = this.preloadData[0].adId
+      this.logs.unshift(`adid:${adid}`)
+      const data = ad.notifyRankLoss({
+        adid: adid,
+        winPrice: 1000,
+        code: 1,//可传 1,2,3,4
+        channel: 'mob'//可传mob,other,其他自定义值
+      })
+
+      this.logs.unshift(`通知竞价失败接口正常返回:${JSON.stringify(data)}`)
+    }
+  },
+  btnSetBidECPM() {
+    this.logs.unshift(`设置实际结算价接口`)
+    if (this.preloadData.length > 0) {
+      let adid = this.preloadData[0].adId
+      this.logs.unshift(`adid:${adid}`)
+      const data = ad.setBidECPM({
+        adid: adid,
+        ecpm: 1000
+      })
+      this.logs.unshift(`设置实际结算价接口正常返回:${JSON.stringify(data)}`)
+    }
+  },
   adLoad() {
-    console.log('adLoad 模板广告加载成功：')
+    console.log('adLoad 模板广告加载成功')
     this.logs.unshift(`adLoad 模板广告加载成功`)
+  },
+  btnLoadAd() {
+    //置空，便于重新加载广告
+    this.adData = []
+    //深拷贝，否则会影响对象改变后，无法触发UI渲染
+    let result = JSON.parse(JSON.stringify(this.preloadData))
+    //处理单条广告，是否显示
+    this.adData = result.map((ele) => {
+      ele.showAd = true
+      return ele
+    })
+    this.logs.unshift(`广告数据：${JSON.stringify(this.adData)}`)
+
   },
   adError(err, evt) {
     if (err) {
@@ -98,12 +192,29 @@ export default {
     })
     this.logs.unshift(`adClick: 模板广告点击回调事件成功触发`)
   },
-  adClose() {
-    console.log('adClose: 模板广告关闭回调事件成功触发 ')
+  adClose(adId) {
+    this.adData.forEach(ele => {
+      if (ele.adId === adId) {
+        ele.showAd = false
+        this.logs.unshift(`关闭广告。adid:${adId}`)
+      }
+    })
+
+    console.log('adClose: 模板广告关闭回调事件成功触发')
     prompt.showToast({
       message: `模板广告关闭回调事件成功触发`
     })
     this.logs.unshift(`adClose: 模板广告关闭回调事件成功触发`)
+  },
+  getECPM() {
+    this.$element('ad-custom').getECPM({
+      success: (data) => {
+        this.logs.unshift(`getECPM: 获取实时竞价结果成功,${JSON.stringify(data)}`)
+      },
+      fail: (data) => {
+        this.logs.unshift(`getECPM: 获取实时竞价结果失败,${JSON.stringify(data)}`)
+      }
+    })
   },
   // 获取设备信息
   getDeviceInfo(key) {
@@ -132,13 +243,14 @@ export default {
 
 .nativeAdContainer {
   width: 750px;
-  height: 1010px;
+  height: 650px;
   flex-direction: column;
+  margin-bottom: 20px;
 }
 
 .ad-native {
-  width: 360%;
-  height: 100%;
+  width: 100%;
+  height: 650px;
 }
 
 .page-title-wrap {
@@ -152,6 +264,16 @@ export default {
   border-color: #bbbbbb;
   color: #bbbbbb;
   border-bottom-width: 2px;
+}
+
+.btn1 {
+  height: 86px;
+  margin-top: 75px;
+  background-color: #09ba07;
+  font-size: 30px;
+  color: #ffffff;
+  padding-left: 20px;
+  padding-right: 20px;
 }
 
 .item-container {

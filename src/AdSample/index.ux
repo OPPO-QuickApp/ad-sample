@@ -8,23 +8,35 @@
       <tab-bar class="tab-bar">
         <text class="tab-text">banner</text>
         <text class="tab-text">插屏</text>
-        <text class="tab-text">原生</text>
         <text class="tab-text">激励视屏</text>
       </tab-bar>
 
       <tab-content class="tab-content">
-
         <div class="item-container">
-
           <div class="create-con">
-            <div><text>width</text><input type="number" name="width" class="input-text" onchange="bannerStyleAttrValCreateChange"></input></div>
-            <div><text>height</text><input type="number" name="height" class="input-text" onchange="bannerStyleAttrValCreateChange"></input></div>
+            <div>
+              <text>width</text>
+              <input type="number" name="width" class="input-text" onchange="bannerStyleAttrValCreateChange"/>
+            </div>
+            <div>
+              <text>height</text>
+              <input type="number" name="height" class="input-text" onchange="bannerStyleAttrValCreateChange"/>
+            </div>
           </div>
           <div class="create-con">
-            <div><text>top</text><input type="number" name="top" class="input-text" onchange="bannerStyleAttrValCreateChange"></input></div>
-            <div><text>left</text><input type="number" name="left" class="input-text" onchange="bannerStyleAttrValCreateChange"></input></div>
+            <div>
+              <text>top</text>
+              <input type="number" name="top" class="input-text" onchange="bannerStyleAttrValCreateChange"/>
+            </div>
+            <div>
+              <text>left</text>
+              <input type="number" name="left" class="input-text" onchange="bannerStyleAttrValCreateChange"/>
+            </div>
           </div>
-          <div class="banner-btn-con"><text>配置初始style，</text> <input type="button" class="btn" onclick="initBannerAd" value="创建并展示广告" /></div>
+          <div class="banner-btn-con">
+            <text>配置初始style</text>
+            <input type="button" class="btn" onclick="initBannerAd" value="创建并展示广告" />
+          </div>
           <div class="btn-con">
             <input type="button" class="btn" onclick="listenBannerAdOnloadB" value="新增onLoadB" />
             <input type="button" class="btn" onclick="offLoadB" value="取消onLoadB" />
@@ -56,7 +68,7 @@
               <option value='left' selected="false">left</option>
             </select>
 
-            <input type="number" class="input-text" onchange="bannerStyleAttrValChange"></input>
+            <input type="number" class="input-text" onchange="bannerStyleAttrValChange">
             <input type="button" class="btn" onclick="setBannerStyle" value="设置style" />
           </div>
         </div>
@@ -74,40 +86,13 @@
             <input type="button" class="btn" onclick="showInterstitialAd" value="展示广告" />
             <input type="button" class="btn" onclick="interstitialAdOffLoad" value="取消onLoad" />
           </div>
-        </div>
-
-        <div class="item-container">
-          <div style="margin-bottom:10px;">
-            <text>广告ID</text>
-            <input type="number" class="input-text" value="{{nativeAdUnitId}}" onchange="nativeAdUnitIdChange"></input></div>
           <div class="btn-con">
-            <input type="button" class="btn" onclick="initNativeAd" value="创建广告" />
-            <input type="button" class="btn" onclick="loadNativeAd" value="加载广告" />
+            <input type="button" class="btn" onclick="interstitialAdNotifyRankWin" value="通知竞价成功" />
+            <input type="button" class="btn" onclick="interstitialAdNotifyRankLoss" value="通知竞价失败" />
           </div>
           <div class="btn-con">
-            <input type="button" class="btn" onclick="nativeOffLoad" value="取消onLoad" />
-            <input type="button" class="btn" onclick="nativeOffError" value="取消onError" />
-          </div>
-          <input type="button" class="btn" onclick="nativeDestroy" value="销毁广告" />
-          <div class="nativeContent" if="{{nativeIsShow}}">
-            <text>广告展示</text>
-            <list class="nativeList">
-              <list-item type="native" for="{{nativeDataList}}" class="native-item">
-                <stack class="nativeBox" onclick="reportNativeAdClick($item.adId)" onappear="reportNativeAdShow($item.adId)">
-                  <div class="nativeMsgBox">
-                    <image src="{{$item.icon}}" class="nativeIcon"></image>
-                    <div class="nativeText">
-                      <text class="nativeTitle">{{$item.title}}</text>
-                      <text class="nativeDesc">{{$item.desc}}</text>
-                    </div>
-                  </div>
-                  <div class="logoBox">
-                    <text class="nativeClose" onclick="nativeHide($idx)">关闭</text>
-                    <image src="{{$item.logoUrl}}" class="nativeLogo"></image>
-                  </div>
-                </stack>
-              </list-item>
-            </list>
+            <input type="button" class="btn" onclick="interstitialAdSetBidECPM" value="设置实际结算价" />
+            <input type="button" class="btn" onclick="interstitialAdGetEcpm" value="获取竞价" /> 
           </div>
         </div>
 
@@ -127,6 +112,16 @@
           </div>
           <div class="btn-con">
             <input type="button" class="btn" onclick="destroyRewardedVideo" value="销毁destroy" />
+
+          </div>
+
+          <div class="btn-con">
+            <input type="button" class="btn" onclick="rewardedVideoAdNotifyRankWin" value="通知竞价成功" />
+            <input type="button" class="btn" onclick="rewardedVideoAdNotifyRankLoss" value="通知竞价失败" />
+          </div>
+          <div class="btn-con">
+            <input type="button" class="btn" onclick="rewardedVideoAdSetBidECPM" value="设置实际结算价" />
+            <input type="button" class="btn" onclick="rewardedVideoGetEcpm" value="获取竞价" />
           </div>
         </div>
       </tab-content>
@@ -312,7 +307,6 @@ export default {
     bannerStyleAttrVal: 100,
     bannerAdUnitIds: ['83817'],
     interstitialAdUnitId: '83739',
-    nativeAdUnitId: '83747',
     rewardedVideoAdUnitId: '144444'
 
   },
@@ -351,7 +345,7 @@ export default {
   },
   initBannerAd() {
     let bannerAd = ad.createBannerAd({
-      adUnitId: this.bannerAdUnitIds[this.bannerAds.length % this.bannerAdUnitIds.length ],
+      adUnitId: this.bannerAdUnitIds[this.bannerAds.length % this.bannerAdUnitIds.length],
       style: this.bannerStyle
     })
     const bannerLen = this.bannerAds.push(bannerAd)
@@ -361,13 +355,13 @@ export default {
     bannerAd.onClose(this.generateCbs('onClose', bannerLen - 1, this.bannerOnCloseA, 0))
     bannerAd.onResize(this.generateCbs('onResize', bannerLen - 1, this.bannerOnResize, 0))
     bannerAd.onLoad(this.generateCbs('onLoad', bannerLen - 1, this.bannerOnLoadA, 'A'))
-    setTimeout(()=>{
-      bannerAd.show().then(()=>{
+    setTimeout(() => {
+      bannerAd.show().then(() => {
         this.logs.unshift(`banner 广告show成功, realWith ${bannerAd.style.realWidth}, realHeight ${bannerAd.style.realHeight}`)
-      },()=>{
+      }, () => {
         this.logs.unshift('banner 广告show失败')
       })
-    },10)
+    }, 10)
 
   },
   listenBannerAdOnloadB() {
@@ -379,10 +373,10 @@ export default {
   showBannerAd() {
     for (const i in this.bannerAds) {
       this.bannerAds[i].show().then(
-        ()=>{
+        () => {
           this.logs.unshift('banner 广告show成功')
         },
-        ()=>{
+        () => {
           this.logs.unshift('banner 广告show失败')
         })
     }
@@ -391,9 +385,9 @@ export default {
   hideBannerAd() {
     for (const i in this.bannerAds) {
       this.bannerAds[i].hide().then(
-        ()=>{
+        () => {
           this.logs.unshift('banner 广告hide成功')
-        },()=>{
+        }, () => {
           this.logs.unshift('banner 广告hide失败')
         })
     }
@@ -499,12 +493,37 @@ export default {
     interstitialAd.onClose(this.interstitialOnClose.bind(this))
     this.logs.unshift('插屏广告初始化，增加事件监听')
   },
+  interstitialAdNotifyRankWin() {
+    this.logs.unshift('点击通知竞价成功接口')
+    const data = this.interstitialAd.notifyRankWin({
+      lossPrice: 1000
+    })
+
+    this.logs.unshift(`通知竞价成功接口正常返回:${JSON.stringify(data)}`)
+  },
+  interstitialAdNotifyRankLoss() {
+    this.logs.unshift('点击通知竞价失败接口')
+    const data = this.interstitialAd.notifyRankLoss({
+      winPrice: 1000,
+      code: 1,//可传 1,2,3,4
+      channel: 'mob'//可传mob,other,其他自定义值
+    })
+
+    this.logs.unshift(`通知竞价失败接口正常返回:${JSON.stringify(data)}`)
+  },
+  interstitialAdSetBidECPM() {
+    this.logs.unshift('点击设置实际结算价接口')
+    const data = this.interstitialAd.setBidECPM({
+      ecpm: 1000
+    })
+    this.logs.unshift(`设置实际结算价接口正常返回:${JSON.stringify(data)}`)
+  },
   showInterstitialAd() {
     this.interstitialAd.show().then(
-      ()=>{
+      () => {
         this.logs.unshift('插屏广告show成功')
       },
-      ()=>{this.logs.unshift('插屏广告show失败')})
+      () => { this.logs.unshift('插屏广告show失败') })
     this.logs.unshift('调用插屏广告展示')
   },
   interstitialOnShow() {
@@ -518,6 +537,18 @@ export default {
   interstitialOnLoad() {
     const str = '插屏广告 load 事件'
     this.logs.unshift(str)
+    //插屏广告获取竞价，必须在onload中调用
+    const ecpm = this.interstitialAd.getECPM()
+    this.logs.unshift(`getECPM: 获取实时竞价结果成功,${JSON.stringify(ecpm)}`)
+  },
+  interstitialAdGetEcpm() {
+    this.logs.unshift(`插屏广告,获取实时竞价事件：interstitialAdGetEcpm`)
+    try {
+      const ecpm = this.interstitialAd.getECPM()
+      this.logs.unshift(`getECPM: 获取实时竞价结果成功,${JSON.stringify(ecpm)}`)
+    } catch (error) {
+      this.logs.unshift(`getECPM: 获取实时竞价结果失败,${JSON.stringify(error)}`)
+    }
   },
   interstitialOnClose() {
     const str = '插屏广告 close 事件'
@@ -539,119 +570,92 @@ export default {
     this.interstitialAd.offClose()
     this.logs.unshift(`插屏广告取消close监听`)
   },
-  // 原生广告native
-  nativeAdUnitIdChange(e) {
-    this.nativeAdUnitId = e.value
-  },
 
-  initNativeAd() {
-    let nativeAd = ad.createNativeAd({
-      adUnitId: this.nativeAdUnitId
-    })
-    this.nativeAd = nativeAd
-    nativeAd.onLoad(this.nativeOnLoad.bind(this))
-    nativeAd.onError(this.nativeOnError.bind(this))
-    this.logs.unshift('原生广告已创建，增加事件监听')
-  },
-  loadNativeAd() {
-    this.nativeAd.load()
-    this.logs.unshift('加载原生广告')
-  },
-  nativeOnError(err) {
-    const str = `原生广告错误: ${err.errMsg}, ${err.errCode}`
-    console.log(str)
-    this.logs.unshift(str)
-    this.nativeIsShow = false
-  },
-  nativeOnLoad(result) {
-    console.log('原生广告结果', JSON.stringify(result))
-    this.nativeAdResult = result
-    this.nativeDataList = result.adList
-    this.logs.unshift(`原生广告加载成功，内容:${JSON.stringify(result)}`)
-    this.nativeIsShow = true
-  },
-  reportNativeAdClick(adId) {
-    if (this.nativeAdResult && this.nativeAdResult.adList && this.nativeAdResult.adList.length > 0) {
-      this.nativeAd.reportAdClick({ adId: adId })
-      this.logs.unshift(`原生广告点击上报，adid:${adId}`)
-    }
-  },
-  reportNativeAdShow(adId) {
-    if (this.nativeAdResult && this.nativeAdResult.adList && this.nativeAdResult.adList.length > 0) {
-      this.nativeAd.reportAdShow({ adId: adId })
-      this.logs.unshift(`原生广告展示上报，adid:${adId}`)
-    }
-  },
-  nativeDestroy() {
-    this.nativeAd.destroy()
-    this.logs.unshift(`原生广告销毁`)
-    this.nativeIsShow = false
-  },
-  nativeOffError() {
-    this.nativeAd.offError()
-    this.logs.unshift(`原生广告取消error监听`)
-  },
-  nativeOffLoad() {
-    this.nativeAd.offLoad()
-    this.logs.unshift(`原生广告取消load监听`)
-  },
-  nativeHide(idx, e) {
-    if (e.stopPropagation) {
-      e.stopPropagation()
-    }
-    this.nativeDataList.splice(idx, 1)
-  },
 
   // rewardedVideo
   initRewardedVideoAd() {
-      let rewardedVideoAd = ad.createRewardedVideoAd({
-        adUnitId: this.rewardedVideoAdUnitId
-      })
-      this.rewardedVideoAd = rewardedVideoAd
-      rewardedVideoAd.onError(this.rewardedVideoOnError.bind(this))
-      rewardedVideoAd.onLoad(this.rewardedVideoOnLoad.bind(this))
-      rewardedVideoAd.onClose(this.rewardedVideoOnClose.bind(this))
-      this.logs.unshift('激励视频广告初始化，增加事件监听')
-    },
-    loadRewardedVideoAd() {
-      this.rewardedVideoAd.load()
-      this.logs.unshift('调用激励视频广告加载')
-    },
-    showRewardedVideoAd() {
-      this.rewardedVideoAd.show()
-      this.logs.unshift('调用激励视频广告展示')
-    },
-    rewardedVideoOnError(err) {
-      const str = `激励视频广告错误: ${err.errMsg}, ${err.errCode}`
-      console.log(str)
-      this.logs.unshift(str)
-    },
-    rewardedVideoOnLoad() {
-      const str = '激励视频广告 load 事件'
-      console.log(str)
-      this.logs.unshift(str)
-    },
-    rewardedVideoOnClose(res) {
-      const str = `激励视频广告 close 事件，是否观看完整：${res.isEnded}`
-      console.log(str)
-      this.logs.unshift(str)
-    },
-    rewardedVideoOffError() {
-      this.rewardedVideoAd.offError()
-      this.logs.unshift(`激励视频广告取消error监听`)
-    },
-    rewardedVideoOffClose() {
-      this.rewardedVideoAd.offClose()
-      this.logs.unshift(`激励视频广告取消close监听`)
-    },
-    rewardedVideoOffLoad() {
-      this.rewardedVideoAd.offLoad()
-      this.logs.unshift(`激励视频广告取消load监听`)
-    },
-    destroyRewardedVideo() {
-      this.rewardedVideoAd.destroy()
-      this.logs.unshift(`激励视频广告destroy`)
+    let rewardedVideoAd = ad.createRewardedVideoAd({
+      adUnitId: this.rewardedVideoAdUnitId
+    })
+    this.rewardedVideoAd = rewardedVideoAd
+    rewardedVideoAd.onError(this.rewardedVideoOnError.bind(this))
+    rewardedVideoAd.onLoad(this.rewardedVideoOnLoad.bind(this))
+    rewardedVideoAd.onClose(this.rewardedVideoOnClose.bind(this))
+    this.logs.unshift('激励视频广告初始化，增加事件监听')
+  },
+  rewardedVideoAdNotifyRankWin() {
+    this.logs.unshift('点击通知竞价成功接口')
+    const data = this.rewardedVideoAd.notifyRankWin({
+      lossPrice: 1000
+    })
+    this.logs.unshift(`通知竞价成功接口正常返回:${JSON.stringify(data)}`)
+  },
+  rewardedVideoAdNotifyRankLoss() {
+    this.logs.unshift('点击通知竞价失败接口')
+    const data = this.rewardedVideoAd.notifyRankLoss({
+      winPrice: 1000,
+      code: 1,//可传 1,2,3,4
+      channel: 'mob'//可传mob,other,其他自定义值
+    })
+
+    this.logs.unshift(`通知竞价失败接口正常返回:${JSON.stringify(data)}`)
+  },
+  rewardedVideoAdSetBidECPM() {
+    this.logs.unshift('点击设置实际结算价接口')
+    const data = this.rewardedVideoAd.setBidECPM({
+      ecpm: 1000
+    })
+    this.logs.unshift(`设置实际结算价接口正常返回:${JSON.stringify(data)}`)
+  },
+  loadRewardedVideoAd() {
+    this.rewardedVideoAd.load()
+    this.logs.unshift('调用激励视频广告加载')
+  },
+  showRewardedVideoAd() {
+    this.rewardedVideoAd.show()
+    this.logs.unshift('调用激励视频广告展示')
+  },
+  rewardedVideoOnError(err) {
+    const str = `激励视频广告错误: ${err.errMsg}, ${err.errCode}`
+    console.log(str)
+    this.logs.unshift(str)
+  },
+  rewardedVideoOnLoad() {
+    const str = '激励视频广告 load 事件'
+    console.log(str)
+    this.logs.unshift(str)
+    this.rewardedVideoGetEcpm()
+  },
+  rewardedVideoOnClose(res) {
+    const str = `激励视频广告 close 事件，是否观看完整：${res.isEnded}`
+    console.log(str)
+    this.logs.unshift(str)
+  },
+  rewardedVideoOffError() {
+    this.rewardedVideoAd.offError()
+    this.logs.unshift(`激励视频广告取消error监听`)
+  },
+  rewardedVideoOffClose() {
+    this.rewardedVideoAd.offClose()
+    this.logs.unshift(`激励视频广告取消close监听`)
+  },
+  rewardedVideoOffLoad() {
+    this.rewardedVideoAd.offLoad()
+    this.logs.unshift(`激励视频广告取消load监听`)
+  },
+  destroyRewardedVideo() {
+    this.rewardedVideoAd.destroy()
+    this.logs.unshift(`激励视频广告destroy`)
+  },
+  rewardedVideoGetEcpm() {
+    this.logs.unshift(`激励视频广告,获取实时竞价事件：rewardedVideoGetEcpm`)
+    try {
+      const ecpm = this.rewardedVideoAd.getECPM()
+      this.logs.unshift(`getECPM: 获取实时竞价结果成功,${JSON.stringify(ecpm)}`)
+    } catch (error) {
+      this.logs.unshift(`getECPM: 获取实时竞价结果失败,${JSON.stringify(error)}`)
     }
+  }
 
 }
 </script>

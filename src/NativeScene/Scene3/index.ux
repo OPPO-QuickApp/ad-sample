@@ -1,0 +1,239 @@
+<!-- 引擎版本4.6+ -->
+<template>
+  <div>
+    <div class="nativeAdContainer">
+      <ad
+        id="ad-native"
+        adunitid="{{ adunitid }}"
+        class="ad-native"
+        onload="adLoad(evt)"
+        onerror="adError(err,evt)"
+        onadclick="adClick"
+        onadshow="adShow"
+        type="native"
+        style="height:{{  adData.hasPrivacy ? '276px':'240px' }}"
+      >
+        <div style="flex-direction: column" if="{{ showAd }}">
+          <ad-clickable-area
+            if="{{ adData.creativeType === 3 }}"
+            class="ad-content"
+          >
+            <div class="ad-content-area">
+              <div class="ad-content-area-left">
+                <image src="{{ adData.icon }}"></image>
+                <div class="ad-content-area-mask"><text>广告</text></div>
+              </div>
+              <div class="ad-content-area-right">
+                <div class="ad-title">
+                  <text>{{ adData.title }}</text>
+                </div>
+                <div class="ad-desc">
+                  <text>{{ adData.desc }}</text>
+                </div>
+
+                <div class="ad-clickbtn">
+                  <text>{{ adData.clickBtnTxt }}</text>
+                </div>
+              </div>
+            </div>
+            <div class="ad-content-element"></div>
+            <div class="ad-close" onclick="onclose"><text>关闭</text></div>
+          </ad-clickable-area>
+          <div class="ad-content-footer" if="{{ adData.hasPrivacy }}">
+            <text class="ad-content-footer-version">{{
+              adData.appInfo.appVersion
+            }}</text>
+            <div class="ad-content-footer-line"></div>
+            <text class="ad-content-footer-company">{{
+              adData.appInfo.developer
+            }}</text>
+            <div class="ad-content-footer-line"></div>
+            <ad-clickable-area
+              class="ad-content-footer-private"
+              type="privacy"
+              font-size="11dp"
+              color="rgb(245, 34, 34)"
+            >
+            </ad-clickable-area>
+          </div>
+        </div>
+      </ad>
+    </div>
+  </div>
+</template>
+<script>
+import prompt from '@system.prompt'
+import ad from '@service.ad'
+/**
+ * 默认图标，图片尺寸-512*512 
+ * creativeType=3 
+ * 3: 图文混合(512x512)
+ */
+export default {
+  data: {
+    showAd: false,
+    adunitid: 1021784,
+    adData: { // 此处广告的初始值需严格按照文档来
+      imgUrlList: [],
+      title: '',
+      desc: '',
+      clickBtnTxt: '',
+      hasPrivacy: false,
+      appInfo: {}
+    },
+  },
+  adLoad(evt) {
+    if (evt && evt.adData) {
+      const adData = JSON.parse(evt.adData)
+      this.adData = adData
+      this.showAd = true
+      prompt.showToast({
+        message: '信息流广告展示成功'
+      })
+      console.log('adLoad', adData, '信息流广告加载成功');
+    }
+  },
+  adError(err, evt) {
+    if (err) {
+      console.log('adError 信息流广告加载出错：', err)
+    } else if (evt) {
+      prompt.showToast({
+        message: '信息流广告展示失败:' + evt.errCode + ', errMsg=' + evt.errMsg
+      })
+      console.log('adError 信息流广告展示失败：', evt.errCode, evt.errMsg)
+    }
+  },
+  adShow(evt) {
+    console.log('adShow: ', evt)
+
+    prompt.showToast({
+      message: `广告展示回调事件成功触发`
+    })
+  },
+  adClick(evt) {
+    console.log('adClick: ', evt)
+
+    prompt.showToast({
+      message: `广告点击回调事件成功触发`
+    })
+  },
+  onclose() {
+    this.showAd = false
+  }
+}
+</script>
+<style lang="less">
+.nativeAdContainer {
+  width: 100%;
+
+  padding: 48px 48px 0 48px;
+}
+
+.ad-native {
+  width: 100%;
+  border: 1px solid #ccc;
+  position: relative;
+}
+
+.ad-content {
+  position: relative;
+  flex-direction: column;
+  .ad-close {
+    width: 50px;
+    height: 30px;
+    background-color: gray;
+    opacity: 0.5;
+    position: absolute;
+    right: 0;
+    text {
+      font-size: 20px;
+      padding: 5px;
+      color: #ffffff;
+    }
+  }
+}
+
+.ad-content-area {
+  width: 100%;
+
+  &-left {
+    width: 240px;
+    height: 240px;
+    position: relative;
+    margin-right: 36px;
+    image {
+      width: 240px;
+      height: 240px;
+    }
+  }
+  &-mask {
+    background-color: gray;
+    opacity: 0.5;
+    position: absolute;
+    top: 0;
+    left: 0;
+    text {
+      font-size: 20px;
+      padding: 2px;
+      color: #ffffff;
+    }
+  }
+  &-right {
+    width: 440px;
+    flex-direction: column;
+    .ad-title {
+      margin-top: 16px;
+      text {
+        font-size: 32px;
+        font-weight: bold;
+      }
+    }
+    .ad-desc {
+      margin-top: 16px;
+      text {
+        lines: 2;
+        text-overflow: ellipsis;
+        font-size: 25px;
+      }
+    }
+    .ad-clickbtn {
+      height: 56px;
+      flex-direction: column;
+      border-radius: 24px;
+      align-items: center;
+      justify-content: center;
+      background-color: #2d40e9;
+      margin: 24px;
+      text {
+        color: white;
+        font-weight: bold;
+      }
+    }
+  }
+}
+
+.ad-content-footer {
+  width: 100%;
+  height: 36px;
+  padding: 0 24px;
+  flex-direction: row;
+  &-version {
+    font-size: 18px;
+    color: #e6eff7;
+  }
+
+  &-line {
+    margin: 0 24px;
+    width: 2px;
+    height: 100%;
+    background-color: #f1f3f5;
+  }
+  &-company {
+    font-size: 18px;
+    color: #afc7dd;
+  }
+  &-private {
+    width: 150px;
+  }
+}
+</style>

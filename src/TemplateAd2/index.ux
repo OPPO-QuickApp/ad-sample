@@ -80,8 +80,8 @@ export default {
     })
     this.logs.unshift(`adClick: 模板广告点击回调事件成功触发`)
   },
-  adClose() {
-    console.log('adClose: 模板广告关闭回调事件成功触发 ')
+  adClose(evt) {
+    console.log('adClose: 模板广告关闭回调事件成功触发', JSON.stringify(evt))
     prompt.showToast({
       message: `模板广告关闭回调事件成功触发`
     })
