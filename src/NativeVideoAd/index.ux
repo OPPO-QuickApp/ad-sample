@@ -1,60 +1,68 @@
-<!-- 引擎版本4.6+ -->
+
 <template>
-  <div>
+  <div class="ad-wrap">
     <text class="btn" onclick="reload">重新加载广告</text>
     <div class="nativeAdContainer" if="{{ showAd }}">
       <ad
-        id="ad-native"
         adunitid="{{ adunitid }}"
         class="ad-native"
+        type="native"
         onload="adLoad(evt)"
         onerror="adError(err,evt)"
         onadclick="adClick"
         onadshow="adShow"
-        type="native"
+        onvideostart="videoStart"
+        onvideoend="videoEnd"
       >
-        <ad-clickable-area class="ad-content">
-          <div class="left">
-            <image src="{{ adData.icon }}"></image>
-            <div class="ad-mask"><text>广告</text></div>
-          </div>
-          <div class="center">
-            <div class="ad-title">
-              <text>{{ adData.title }}</text>
-            </div>
-            <div class="ad-desc">
-              <text>{{ adData.desc }}</text>
-            </div>
-          </div>
-          <div class="right">
-            <text>{{ adData.clickBtnTxt }}</text>
-          </div>
-        </ad-clickable-area>
-        <div class="ad-close" onclick="onclose"><text>关闭</text></div>
+        <ad-clickable-area type="video" class="ad-content"> </ad-clickable-area>
       </ad>
     </div>
+
+    <div class="page-title-wrap">
+      <text class="page-title">日志</text>
+    </div>
+    <div class="item-container">
+      <text class="item-content" for="(logIndex, log) in logs">
+        <span class="txt">- {{ log }}</span></text
+      >
+    </div>
+    <div class="bottomPlaceHolder"></div>
   </div>
 </template>
 <script>
 import prompt from '@system.prompt'
 import ad from '@service.ad'
+import device from '@system.device'
 // JS部分请尽量按照广告示例demo编写
 export default {
   data: {
     showAd: true,
-    adunitid: 1021784,
+    adunitid: 750365,
     adData: { // 此处广告的初始值需严格按照文档来
       imgUrlList: [],
       title: '',
       desc: '',
       clickBtnTxt: ''
     },
-    ecpm: ''
+    platformVersionCode: '',
+    logs: []
+
   },
-  onInit() {
-    this.adPreloaded()
+  async onInit() {
+    this.platformVersionCode = await this.getDeviceInfo('platformVersionCode')
+
+    if (this.platformVersionCode >= 1114) {
+      this.adPreloaded()
+    }
+    else {
+      prompt.showToast({
+        message: `当前引擎不支持原生自渲染2.0视频广告，请升级最新引擎`
+      })
+      console.log('引擎版本: ', this.platformVersionCode)
+      this.logs.unshift(`引擎版本: ${this.platformVersionCode}`)
+      this.logs.unshift(`当前引擎不支持原生自渲染2.0视频广告，请升级最新引擎`)
+    }
   },
-  // 广告预加载，5.2以后就不需要提前使用了
   adPreloaded() {
     ad.preloadAd({
       adUnitId: this.adunitid,
@@ -64,12 +72,14 @@ export default {
         prompt.showToast({
           message: `预加载成功${JSON.stringify(data)}`
         })
+        this.logs.unshift(`预加载成功: ${JSON.stringify(data)}`)
       },
       fail: function (err, code) {
         console.log(err, code, '预加载失败')
         prompt.showToast({
           message: `预加载失败${JSON.stringify(err)}`
         })
+        this.logs.unshift(`预加载失败:${JSON.stringify(err)}`)
       }
     })
   },
@@ -81,6 +91,7 @@ export default {
         message: '信息流广告展示成功'
       })
       console.log('adLoad', adData, '信息流广告加载成功');
+      this.logs.unshift(`信息流广告加载成功: ${JSON.stringify(adData)}`)
     }
   },
   adError(err, evt) {
@@ -91,6 +102,7 @@ export default {
         message: '信息流广告展示失败:' + evt.errCode + ', errMsg=' + evt.errMsg
       })
       console.log('adError 信息流广告展示失败：', evt.errCode, evt.errMsg)
+      this.logs.unshift(`信息流广告展示失败：: ${evt.errCode},${evt.errMsg}`)
     }
   },
   adShow(evt) {
@@ -99,6 +111,7 @@ export default {
     prompt.showToast({
       message: `广告展示回调事件成功触发`
     })
+    this.logs.unshift(`广告展示回调事件成功触发`)
   },
   adClick(evt) {
     console.log('adClick: ', evt)
@@ -106,6 +119,7 @@ export default {
     prompt.showToast({
       message: `广告点击回调事件成功触发`
     })
+    this.logs.unshift(`广告点击回调事件成功触发`)
   },
   reload() {
     // 可通过 if 先销毁原广告组件，再重新创建广告组件，达到重新加载的效果
@@ -122,10 +136,44 @@ export default {
   },
   onclose() {
     this.showAd = false
+  },
+  videoStart() {
+    prompt.showToast({
+      message: `视频广告videoStart回调事件成功触发`
+    })
+    this.logs.unshift(`视频广告videoStart回调`)
+  },
+  videoEnd() {
+    prompt.showToast({
+      message: `视频广告videoEnd回调事件成功触发`
+    })
+    this.logs.unshift(`视频广告videoEnd回调`)
+  },
+  // 获取设备信息
+  getDeviceInfo(key) {
+    return new Promise((resolve, reject) => {
+      device.getInfo({
+        success: function (data) {
+          if (key) {
+            resolve(data[key])
+          } else {
+            resolve(data)
+          }
+        },
+        fail: function (data, code) {
+          reject(`### device.getInfo fail ### ${code}: ${data}`)
+        }
+      })
+    })
   }
 }
 </script>
 <style lang="less">
+.ad-wrap {
+  flex: 1;
+  flex-direction: column;
+}
+
 .btn {
   height: 86px;
   border: 1px solid #333;
@@ -133,63 +181,20 @@ export default {
 }
 
 .nativeAdContainer {
-  position: absolute;
-  bottom: 0;
-  width: 750px;
-  height: 150px;
+  height: 450px;
+  flex-direction: column;
+  margin-bottom: 20px;
 }
 
 .ad-native {
   background-color: lightgray;
+  width: 100%;
+  height: 450px;
   position: relative;
+
   .ad-content {
-    .left {
-      flex: 30;
-      .ad-mask {
-        background-color: gray;
-        opacity: 0.5;
-        position: absolute;
-        top: 0;
-        left: 0;
-        text {
-          font-size: 20px;
-          padding: 2px;
-          color: #ffffff;
-        }
-      }
-    }
-    .center {
-      flex: 50;
-      flex-direction: column;
-      padding: 0 3px;
-      .ad-title {
-        text {
-          color: red;
-          padding: 5px 0;
-          font-size: 30px;
-          font-weight: bold;
-        }
-      }
-      .ad-desc {
-        text {
-          lines: 2;
-          text-overflow: ellipsis;
-          font-size: 25px;
-          font-weight: bold;
-        }
-      }
-    }
-    .right {
-      flex: 20;
-      background-color: orange;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text {
-        color: white;
-        font-weight: bold;
-      }
-    }
+    width: 100%;
+    height: 450px;
   }
   .ad-close {
     width: 50px;
@@ -206,14 +211,17 @@ export default {
   }
 }
 
-.btn1 {
-  height: 86px;
-  margin-top: 75px;
-  background-color: #09ba07;
-  font-size: 30px;
-  color: #ffffff;
-  padding-left: 20px;
-  padding-right: 20px;
+.page-title-wrap {
+  justify-content: center;
+}
+.page-title {
+  padding-top: 30px;
+  padding-bottom: 30px;
+  padding-left: 40px;
+  padding-right: 40px;
+  border-color: #bbbbbb;
+  color: #bbbbbb;
+  border-bottom-width: 2px;
 }
 
 .item-container {

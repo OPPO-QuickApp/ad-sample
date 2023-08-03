@@ -1,7 +1,7 @@
 <template>
   <div class="page-container">
     <div class="btn-row">
-        <input type="button" value="加载banner广告" onclick="loadBannerAd"/>
+      <text class="btn" onclick="loadBannerAd">加载banner广告</text>
     </div>
   </div>
 </template>
@@ -11,23 +11,26 @@ import prompt from '@system.prompt'
 import device from '@system.device'
 import adx from '@service.ad'
 export default {
-  private: {
-
-  },
   onInit() {
     console.log('init')
   },
   loadBannerAd() {
     let bannerAd = adx.createBannerAd({
-      adUnitId: '83817'
+      adUnitId: '991016',
+      style: {
+        width: 710,
+        top: 350,
+        left: 20
+      }
     })
     console.log(adx.getProvider())
     if (bannerAd) {
       bannerAd.onLoad((data) => {
         console.log(data, 'onload')
       })
+
       bannerAd.onResize((data) => {
-        console.log(data.width + "|" + data.height, 'onResize')      
+        console.log(data.width + "|" + data.height, 'onResize')
       })
       bannerAd.onError((data) => {
         console.log(data, 'onError')
@@ -44,17 +47,22 @@ export default {
         })
       })
     }
-  }
+  },
 }
 </script>
   
 <style>
 .page-container {
-  width: 100%;
+  flex: 1;
+  flex-direction: column;
 }
-input {
-  width: 500px;
+.btn {
+  width: 100%;
   height: 86px;
-  background-color: green;
+  margin: 5px;
+  background-color: #09ba07;
+  font-size: 30px;
+  color: #ffffff;
+  text-align: center;
 }
 </style>

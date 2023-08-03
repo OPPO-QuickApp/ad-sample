@@ -1,0 +1,208 @@
+<!-- 引擎版本4.6+ -->
+<template>
+  <div>
+    <div class="nativeAdContainer">
+      <ad
+        id="ad-native"
+        adunitid="{{ adunitid }}"
+        class="ad-native"
+        onload="adLoad(evt)"
+        onerror="adError(err,evt)"
+        onadclick="adClick"
+        onadshow="adShow"
+        type="native"
+      >
+        <div class="ad-content" if="{{ showAd && adData.creativeType === 15 }}">
+          <ad-clickable-area class="ad-content-area">
+            <div class="ad-content-area-img">
+              <image
+                src="{{ adData.imgUrlList && adData.imgUrlList[0] }}"
+              ></image>
+              <div class="ad-content-area-mask"><text>广告</text></div>
+            </div>
+            <div class="ad-content-area-wrap">
+              <div class="ad-content-area-wrap-icon">
+                <image src="{{ adData.logoUrl }}"></image>
+              </div>
+              <div class="ad-content-area-wrap-desc">
+                <div class="ad-title">
+                  <text>{{ adData.title }}</text>
+                </div>
+                <div class="ad-desc">
+                  <text>{{ adData.desc }}</text>
+                </div>
+              </div>
+            </div>
+            <div class="ad-content-area-btn">
+              <div class="ad-clickbtn">
+                <text>{{ adData.clickBtnTxt }}</text>
+              </div>
+            </div>
+          </ad-clickable-area>
+          <div class="ad-close" onclick="onclose"><text>关闭</text></div>
+        </div>
+      </ad>
+    </div>
+  </div>
+</template>
+<script>
+import prompt from '@system.prompt'
+import ad from '@service.ad'
+/**
+ * 竖版大图规格，图片尺寸 1080*1920
+ * creativeType=15
+ * 15：竖版大图（1080x1920）
+ */
+export default {
+  data: {
+    showAd: false,
+    adunitid: 1021806,
+    adData: { // 此处广告的初始值需严格按照文档来
+      imgUrlList: [],
+      title: '',
+      desc: '',
+      clickBtnTxt: ''
+    },
+  },
+  adLoad(evt) {
+    if (evt && evt.adData) {
+      const adData = JSON.parse(evt.adData)
+      this.adData = adData
+      this.showAd = true
+      prompt.showToast({
+        message: '信息流广告展示成功'
+      })
+      console.log(JSON.stringify(adData))
+      console.log('adLoad', adData, '信息流广告加载成功');
+    }
+  },
+  adError(err, evt) {
+    if (err) {
+      console.log('adError 信息流广告加载出错：', err)
+    } else if (evt) {
+      prompt.showToast({
+        message: '信息流广告展示失败:' + evt.errCode + ', errMsg=' + evt.errMsg
+      })
+      console.log('adError 信息流广告展示失败：', evt.errCode, evt.errMsg)
+    }
+  },
+  adShow(evt) {
+    console.log('adShow: ', evt)
+
+    prompt.showToast({
+      message: `广告展示回调事件成功触发`
+    })
+  },
+  adClick(evt) {
+    console.log('adClick: ', evt)
+
+    prompt.showToast({
+      message: `广告点击回调事件成功触发`
+    })
+  },
+  onclose() {
+    this.showAd = false
+  }
+}
+</script>
+<style lang="less">
+.nativeAdContainer {
+  width: 100%;
+  padding: 48px;
+}
+
+.ad-native {
+  width: 100%;
+  flex-direction: column;
+  position: relative;
+  border: 1px solid #ccc;
+}
+
+.ad-content {
+  position: relative;
+  flex-direction: column;
+  .ad-close {
+    width: 50px;
+    height: 30px;
+    background-color: gray;
+    opacity: 0.5;
+    position: absolute;
+    right: 0;
+    text {
+      font-size: 20px;
+      padding: 5px;
+      color: #ffffff;
+    }
+  }
+}
+
+.ad-content-area {
+  width: 100%;
+  flex-direction: column;
+  &-img {
+    width: 100%;
+    height: 1100px;
+    image {
+      width: 100%;
+      height: 100%;
+    }
+  }
+  &-mask {
+    background-color: gray;
+    opacity: 0.5;
+    position: absolute;
+    top: 0;
+    left: 0;
+    text {
+      font-size: 20px;
+      padding: 2px;
+      color: #ffffff;
+    }
+  }
+
+  &-wrap {
+    margin: 24px;
+    &-icon {
+      width: 112px;
+      height: 112px;
+    }
+    &-desc {
+      margin-left: 36px;
+      flex-direction: column;
+    }
+    .ad-title {
+      text {
+        font-size: 32px;
+        font-weight: bold;
+      }
+    }
+    .ad-desc {
+      text {
+        lines: 2;
+        text-overflow: ellipsis;
+        font-size: 25px;
+      }
+    }
+  }
+
+  &-btn {
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ad-clickbtn {
+    width: 100%;
+    height: 68px;
+    border-radius: 36px;
+    align-items: center;
+    justify-content: center;
+    background-color: #2d40e9;
+    margin: 0 24px;
+    text {
+      font-size: 28px;
+      color: white;
+      font-weight: bold;
+    }
+  }
+}
+</style>

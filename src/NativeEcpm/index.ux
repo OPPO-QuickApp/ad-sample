@@ -1,11 +1,17 @@
 <!-- 多条广告 引擎版本号1112+支持 -->
 <template>
   <div class="ad-wrap">
+    <text class="btn" onclick="btnNotifyRankWin">通知竞价成功</text>
+    <text class="btn" onclick="btnNotifyRankLoss">通知竞价失败</text>
+    <text class="btn" onclick="btnSetBidECPM">设置实际结算价</text>
+    <text class="btn" onclick="btnGetECPM">获取竞价</text>
     <text class="btn" onclick="btnClick">加载广告</text>
+
     <block for="{{ adItem in adData}}">
       <div class="nativeAdContainer" if="{{ adItem.showAd }}">
         <ad
           adid="{{ adItem.adId }}"
+          id="ad-native"
           class="ad-native"
           onload="adLoad()"
           onerror="adError(err,evt)"
@@ -13,24 +19,30 @@
           onadshow="adShow"
           type="native"
         >
-          <ad-clickable-area class="ad-content">
-            <div class="left">
-              <image src="{{ adItem.icon }}"></image>
-              <div class="ad-mask"><text>广告</text></div>
-            </div>
-            <div class="center">
-              <div class="ad-title">
-                <text>{{ adItem.title }}</text>
+          <div style="flex-direction: column">
+            <ad-clickable-area class="ad-content">
+              <div class="left">
+                <image
+                  src="{{ adItem.imgUrlList && adItem.imgUrlList[0] }}"
+                ></image>
+                <div class="ad-mask"><text>广告</text></div>
               </div>
-              <div class="ad-desc">
-                <text>{{ adItem.desc }}</text>
+              <div class="center">
+                <div class="ad-title">
+                  <text>{{ adItem.title }}</text>
+                </div>
+                <div class="ad-desc">
+                  <text>{{ adItem.desc }}</text>
+                </div>
               </div>
+              <div class="right">
+                <text>{{ adItem.clickBtnTxt }}</text>
+              </div>
+            </ad-clickable-area>
+            <div class="ad-ecpm">
+              <text>ECPM:{{ adItem.ecpm }}</text>
             </div>
-            <div class="right">
-              <text>{{ adItem.clickBtnTxt }}</text>
-            </div>
-          </ad-clickable-area>
-
+          </div>
           <div class="ad-close" onclick="handleClose(adItem.adId)">
             <text>关闭</text>
           </div>
@@ -55,33 +67,22 @@ import device from '@system.device'
 // JS部分请尽量按照广告示例demo编写
 export default {
   data: {
-    adUnitid: 750439,
+    adUnitid: 709588,
     adData: [],
-    adCount: 2,
+    adCount: 3,
     preloadData: [],
     platformVersionCode: '',
     logs: []
 
   },
   async onInit() {
-    this.platformVersionCode = await this.getDeviceInfo('platformVersionCode')
-
-    if (this.platformVersionCode >= 1112) {
-      this.adPreloaded()
-    }
-    else {
-      prompt.showToast({
-        message: `当前引擎不支持渲染多条广告，请升级最新引擎`
-      })
-      console.log('引擎版本: ', this.platformVersionCode)
-      this.logs.unshift(`引擎版本: ${this.platformVersionCode}`)
-      this.logs.unshift(`当前引擎不支持渲染多条广告，请升级最新引擎`)
-    }
+    this.adPreloaded()
   },
   adPreloaded() {
     ad.preloadAd({
       adUnitId: this.adUnitid,//原生信息流2.0广告位标识
       adCount: this.adCount,//预期返回的数据条数：一次成功返回有1-3个数据，参照对应的adCount数
+      ecpm: true,
       type: 'native',//所属广告位类型
       success: (data) => {
         console.log(data, '预加载成功')
@@ -100,6 +101,59 @@ export default {
         })
       }
     })
+  },
+  btnNotifyRankWin() {
+    this.logs.unshift(`点击通知竞价成功接口`)
+    if (this.preloadData.length > 0) {
+      let adid = this.preloadData[0].adId
+      this.logs.unshift(`adid:${adid}`)
+      const data = ad.notifyRankWin({
+        adid: adid,
+        lossPrice: 1000
+      })
+      this.logs.unshift(`通知竞价成功接口正常返回:${JSON.stringify(data)}`)
+    }
+  },
+  btnNotifyRankLoss() {
+    this.logs.unshift(`点击通知竞价失败接口`)
+    if (this.preloadData.length > 0) {
+      let adid = this.preloadData[0].adId
+      this.logs.unshift(`adid:${adid}`)
+      const data = ad.notifyRankLoss({
+        adid: adid,
+        winPrice: 1000,
+        code: 1,//可传 1,2,3,4
+        channel: 'mob'//可传mob,other,其他自定义值
+      })
+
+      this.logs.unshift(`通知竞价失败接口正常返回:${JSON.stringify(data)}`)
+    }
+  },
+  btnSetBidECPM() {
+    this.logs.unshift(`设置实际结算价接口`)
+    if (this.preloadData.length > 0) {
+      let adid = this.preloadData[0].adId
+      this.logs.unshift(`adid:${adid}`)
+      const data = ad.setBidECPM({
+        adid: adid,
+        ecpm: 1000
+      })
+      this.logs.unshift(`设置实际结算价接口正常返回:${JSON.stringify(data)}`)
+    }
+  },
+  btnGetECPM() {
+    this.logs.unshift(`点击获取实时竞价`)
+    this.$element('ad-native').getECPM({
+      success: (data) => {
+        this.logs.unshift(`点击获取实时竞价:${JSON.stringify(data)}`)
+        console.log(`getECPM: 获取实时竞价结果成功,${JSON.stringify(data)}`)
+      },
+      fail: (data) => {
+        this.logs.unshift(`点击获取实时竞价结果失败:${JSON.stringify(data)}`)
+        console.log(`getECPM: 获取实时竞价结果失败,${JSON.stringify(data)}`)
+      }
+    })
+
   },
   btnClick() {
     console.log('点击加载广告按钮')
@@ -185,8 +239,12 @@ export default {
 
 .btn {
   height: 86px;
-  border: 1px solid #333;
   padding: 20px;
+  margin: 5px;
+  background-color: #09ba07;
+  font-size: 30px;
+  color: #ffffff;
+  text-align: center;
 }
 
 .nativeAdContainer {
@@ -207,8 +265,10 @@ export default {
     height: 100%;
 
     .left {
-      flex: 30;
-
+      image {
+        width: 120px;
+        height: 120px;
+      }
       .ad-mask {
         background-color: gray;
         opacity: 0.5;
@@ -267,6 +327,12 @@ export default {
       padding: 5px;
       color: #ffffff;
     }
+  }
+
+  .ad-ecpm {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
   }
 }
 
