@@ -1,6 +1,3 @@
-<import name="native1" src="../Native1/index" ></import>
-<import name="insertAd" src="../InsertAd/index"></import>
-
 <template>
   <!-- template里只能有一个根节点 -->
   <div class="demo-page">
